@@ -1,10 +1,25 @@
 {
   "name": "policia",
   "version": "1.0.0",
-  "description": "App para declaracion policial",
-  "type": "commonjs",
-  "main": "index.js",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "client",
+    "server",
+    "shared"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "concurrently -n api,web -c green,cyan \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:client": "npm run dev --workspace @policia/client",
+    "dev:server": "npm run dev --workspace @policia/server",
+    "build": "npm run build --workspace @policia/client",
+    "lint": "npm run lint --workspace @policia/client",
+    "preview": "npm run preview --workspace @policia/client"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
+  },
+  "engines": {
+    "node": ">=24"
   }
 }
