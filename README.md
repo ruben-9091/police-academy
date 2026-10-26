@@ -53,19 +53,28 @@ npm run dev:client   # solo Vite
 npm run dev:server   # solo Express
 npm run build        # typecheck + build del cliente
 npm run lint         # ESLint de todo el repo
-npm run typecheck    # TypeScript de todos los workspaces
+npm run typecheck    # TypeScript de todos los workspaces y Netlify
+npm run netlify:dev  # Functions + Edge Functions en :8888
 ```
 
 ## Netlify
 
-El cliente se publica como sitio estático y Express se ejecuta como Netlify Function. El acceso se protege con una Edge Function de Basic Auth (`APP_USER` y `APP_PASSWORD`).
+El cliente se publica como sitio estático y Express se ejecuta como Netlify Function. `/api/*` se redirige a la Function y una Edge Function de Basic Auth protege todas las rutas.
+
+Para probar el entorno real sin gastar créditos, instala la CLI y levanta el proxy local:
+
+```bash
+npm install -g netlify-cli
+npm run netlify:dev
+```
+
+El sitio queda en `http://localhost:8888` y Vite por detrás en `:5180`. Rellena `APP_USER` y `APP_PASSWORD` en `.env.local`; si faltan, la Edge Function responde `503` y no deja pasar ninguna petición. Usa una contraseña larga y distinta de las credenciales de Netlify.
 
 - Límite por función síncrona: 60 s.
 - Petición buffered: 6 MB (unos 4,5 MB binarios).
 - Plan Free: 300 créditos al mes; cada deploy de producción consume 15.
-- Para iterar sin gastar créditos: `npx netlify-cli dev`.
 
-Los detalles de despliegue se documentarán al cerrar la fase de Netlify.
+El sitio aún no está enlazado ni desplegado. Cuando lo esté, el despliegue será `netlify deploy --build --prod` desde la raíz.
 
 ## Estado
 

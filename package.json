@@ -2,7 +2,6 @@
   "name": "policia",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
   "workspaces": [
     "client",
     "server",
@@ -12,14 +11,20 @@
     "dev": "concurrently -n api,web -c green,cyan \"npm:dev:server\" \"npm:dev:client\"",
     "dev:client": "npm run dev --workspace @policia/client",
     "dev:server": "npm run dev --workspace @policia/server",
+    "dev:netlify": "npm run dev:netlify --workspace @policia/client",
     "build": "npm run typecheck && npm run build --workspace @policia/client",
     "build:client": "npm run build --workspace @policia/client",
     "lint": "eslint .",
-    "typecheck": "npm run typecheck --workspaces --if-present",
-    "preview": "npm run preview --workspace @policia/client"
+    "typecheck": "npm run typecheck --workspaces --if-present && tsc -p netlify/tsconfig.json",
+    "preview": "npm run preview --workspace @policia/client",
+    "netlify:dev": "node scripts/netlify-dev.mjs"
+  },
+  "dependencies": {
+    "serverless-http": "^4.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@netlify/edge-functions": "^4.0.3",
     "@types/node": "^24.19.2",
     "concurrently": "^10.0.6",
     "eslint": "^10.13.0",
