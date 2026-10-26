@@ -2,33 +2,36 @@
 
 ## Layout
 
-- `police/` is the actual app: Vite + React 19, JavaScript/JSX. Run all npm commands from this directory.
-- Root `package.json` is a stale placeholder (CommonJS, no dependencies, `npm test` always fails). Do not use it or move app config there.
+- `client/` — Vite + React 19 + TypeScript.
+- `server/` — Express API. `src/app.ts` exports the app; `src/index.ts` starts it locally with `tsx`.
+- `shared/` — types, schemas and constants imported as `@policia/shared`.
+- `netlify/` — Netlify Functions and Edge Functions (wired in the deployment commit).
 - `proyecto-exposiciones-policiales.md` is the product and domain spec. It is the source of truth for behavior, AI prompts, and `.docx` output.
-- `police/README.md` is the default Vite template readme; ignore it.
-- The app is still the Vite starter (`src/App.jsx` is the counter demo). The backend, AI pipeline, and `.docx` export described in the spec do not exist yet; don't assume `server/` or API endpoints.
+- The client is still the Vite starter and the API only exposes `/api/health`. The AI pipeline and `.docx` export do not exist yet.
 
-## Confirmed project direction
+## Commands (from the repo root)
 
-- Migrate to TypeScript and npm workspaces: `client/` (Vite + React), `server/` (Express), `shared/` (types and zod schemas). `police/` becomes `client/`.
-- Deploy the static client and the Express API on Netlify: Express runs through `serverless-http` as a Netlify Function.
+- `npm install` — installs every workspace. Do not run installs inside the individual packages.
+- `npm run dev` — client on `:5173` plus API on `:3001`; Vite proxies `/api` to the API.
+- `npm run dev:client` / `npm run dev:server` — run one side only.
+- `npm run build` — typecheck all workspaces, then build the client to `client/dist`.
+- `npm run lint` — ESLint across client, server, shared and Netlify code.
+- `npm run typecheck` — TypeScript for every workspace.
+- `npm run preview` — preview the client build.
+- No test runner is configured yet; it arrives with the domain/API phases. Until then verify with `npm run lint && npm run typecheck && npm run build`.
+
+## Netlify and AI direction
+
+- Deploy the static client and the Express API on Netlify; Express runs through `serverless-http` as a Netlify Function.
 - Use Gemini as the real AI provider and a deterministic mock provider for development and tests.
-- Netlify Free limits matter: 60 s per synchronous function, 6 MB request (about 4.5 MB binary), 300 credits/month, and no built-in password protection. Protect the site with a Basic Auth Edge Function and iterate locally with `netlify dev`.
-
-## Commands (from `police/` until the Phase 1 restructure)
-
-- `npm run dev` — dev server
-- `npm run build` — production build (outputs `dist/`)
-- `npm run lint` — ESLint flat config, `**/*.{js,jsx}`, ignores `dist/`
-- `npm run preview` — preview built output
-- No test runner, typecheck, formatter, or CI is configured. Verify changes with `npm run lint && npm run build`.
+- Netlify Free limits: 60 s per synchronous function, 6 MB request (about 4.5 MB binary), 300 credits/month, and no built-in password protection. Protect the site with a Basic Auth Edge Function and iterate locally with `netlify dev`.
 
 ## Toolchain notes
 
-- Phase 1 migrates the scaffold to TypeScript; until then the client code is JSX. Do not add new JSX-only code that will need rewriting.
-- React Compiler is enabled through `@rolldown/plugin-babel` + `reactCompilerPreset()` in `vite.config.js`. Keep that setup; do not add a separate Babel config or switch to the SWC plugin.
+- TypeScript is strict and uses `moduleResolution: "Bundler"`. Import shared code as `@policia/shared`; the client Vite config aliases it to the workspace source.
+- React Compiler is enabled through `@rolldown/plugin-babel` + `reactCompilerPreset()` in `client/vite.config.ts`. Keep that setup; do not add a separate Babel config or switch to the SWC plugin.
 - CSS uses native nesting with no PostCSS/Tailwind config.
-- Dependencies are installed under `police/node_modules` (Node 24 / npm 12) until the workspace migration.
+- Node 24 / npm 12. npm may warn that esbuild's postinstall script is blocked by `allowScripts`; Vite and `tsx` currently work despite it. Only run `npm install-scripts approve esbuild` if those tools fail.
 
 ## Domain rules (non-negotiable)
 
