@@ -20,7 +20,11 @@ import { OpcionesForm } from "./components/OpcionesForm";
 import { RelatoForm } from "./components/RelatoForm";
 import { RELATO_EJEMPLO } from "./data/ejemplo";
 import { useGeneracion } from "./hooks/useGeneracion";
-import { obtenerEstado } from "./lib/api";
+import {
+  descargarDocx,
+  guardarArchivo,
+  obtenerEstado,
+} from "./lib/api";
 import "./App.css";
 
 function App() {
@@ -30,6 +34,8 @@ function App() {
     opcionesExposicionSchema.parse({}),
   );
   const [modoDemo, setModoDemo] = useState(false);
+  const [descargando, setDescargando] = useState(false);
+  const [errorDescarga, setErrorDescarga] = useState<unknown>(null);
 
   const { exposicion, estado, error, version, generar, actualizarExposicion } =
     useGeneracion();
@@ -71,17 +77,21 @@ function App() {
     setOpciones((actuales) => ({ ...actuales, ...cambios }));
   }
 
-  function crearSolicitud(): GenerarExposicionRequest {
+  function crearDatos(): DatosCaso {
     const agentes = (datos.agentes ?? [])
       .map((agente) => ({ nip: agente.nip.trim() }))
       .filter((agente) => agente.nip.length > 0);
 
     return {
+      ...datos,
+      agentes: agentes.length > 0 ? agentes : undefined,
+    };
+  }
+
+  function crearSolicitud(): GenerarExposicionRequest {
+    return {
       relatoBruto: relatoBruto.trim(),
-      datos: {
-        ...datos,
-        agentes: agentes.length > 0 ? agentes : undefined,
-      },
+      datos: crearDatos(),
       opciones,
     };
   }
@@ -93,6 +103,7 @@ function App() {
       return;
     }
 
+    setErrorDescarga(null);
     await generar(crearSolicitud());
   }
 
@@ -101,7 +112,42 @@ function App() {
       return;
     }
 
+    setErrorDescarga(null);
     await generar(crearSolicitud());
+  }
+
+  async function manejarDescargar() {
+    if (!exposicion || descargando) {
+      return;
+    }
+
+    if (
+      exposicion.parrafos.length === 0 ||
+      exposicion.parrafos.some((parrafo) => !parrafo.texto.trim())
+    ) {
+      setErrorDescarga(
+        new Error(
+          "Completa o elimina los párrafos vacíos antes de descargar el documento.",
+        ),
+      );
+      return;
+    }
+
+    setDescargando(true);
+    setErrorDescarga(null);
+
+    try {
+      const documento = await descargarDocx({
+        datos: crearDatos(),
+        opciones,
+        exposicion,
+      });
+      guardarArchivo(documento, "exposicion-hechos.docx");
+    } catch (fallo) {
+      setErrorDescarga(fallo);
+    } finally {
+      setDescargando(false);
+    }
   }
 
   return (
@@ -174,10 +220,16 @@ function App() {
             <>
               <InicioDocumento opciones={opciones} />
 
+              {errorDescarga !== null && (
+                <BannerError error={errorDescarga} />
+              )}
+
               <ExposicionEditor
                 key={version}
                 exposicion={exposicion}
                 onCambiar={actualizarExposicion}
+                onDescargar={manejarDescargar}
+                descargando={descargando}
               />
 
               <div className="paneles">

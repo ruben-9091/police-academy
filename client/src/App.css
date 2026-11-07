@@ -120,6 +120,13 @@
     }
   }
 
+  &__acciones {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
+
   &__titulo {
     display: flex;
     align-items: center;

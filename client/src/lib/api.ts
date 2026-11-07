@@ -1,6 +1,7 @@
 import {
   generarExposicionResponseSchema,
   type Exposicion,
+  type ExportarDocxRequest,
   type GenerarExposicionRequest,
 } from "@policia/shared";
 
@@ -69,6 +70,39 @@ export async function generarExposicion(
   }
 
   return resultado.data;
+}
+
+export async function descargarDocx(
+  input: ExportarDocxRequest,
+): Promise<Blob> {
+  const response = await fetch("/api/exportar-docx", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+
+  if (!response.ok) {
+    const cuerpo = await leerCuerpoError(response);
+    throw new ApiError(
+      cuerpo.error ?? `La exportación falló (HTTP ${response.status})`,
+      response.status,
+      cuerpo.issues ?? [],
+    );
+  }
+
+  return response.blob();
+}
+
+export function guardarArchivo(blob: Blob, nombre: string) {
+  const url = URL.createObjectURL(blob);
+  const enlace = document.createElement("a");
+
+  enlace.href = url;
+  enlace.download = nombre;
+  document.body.append(enlace);
+  enlace.click();
+  enlace.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 export async function obtenerEstado(): Promise<{ provider: string } | null> {

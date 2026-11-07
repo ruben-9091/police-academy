@@ -11,9 +11,16 @@ import { ParrafoEditor } from "./ParrafoEditor";
 interface Props {
   exposicion: Exposicion;
   onCambiar: (exposicion: Exposicion) => void;
+  onDescargar: () => void;
+  descargando: boolean;
 }
 
-export function ExposicionEditor({ exposicion, onCambiar }: Props) {
+export function ExposicionEditor({
+  exposicion,
+  onCambiar,
+  onDescargar,
+  descargando,
+}: Props) {
   return (
     <section className="panel editor" aria-labelledby="editor-titulo">
       <div className="panel__cabecera">
@@ -24,13 +31,23 @@ export function ExposicionEditor({ exposicion, onCambiar }: Props) {
             marcador resaltado para concretarlo.
           </p>
         </div>
-        <button
-          type="button"
-          className="boton-secundario"
-          onClick={() => onCambiar(anadirParrafo(exposicion))}
-        >
-          Añadir párrafo
-        </button>
+        <div className="panel__acciones">
+          <button
+            type="button"
+            className="boton-secundario"
+            onClick={() => onCambiar(anadirParrafo(exposicion))}
+          >
+            Añadir párrafo
+          </button>
+          <button
+            type="button"
+            className="boton-principal boton-principal--pequeno"
+            onClick={onDescargar}
+            disabled={descargando}
+          >
+            {descargando ? "Descargando…" : "Descargar .docx"}
+          </button>
+        </div>
       </div>
 
       <div className="editor__lista">
