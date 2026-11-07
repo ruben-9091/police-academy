@@ -11,6 +11,7 @@ export function useGeneracion() {
   const [exposicion, setExposicion] = useState<Exposicion | null>(null);
   const [estado, setEstado] = useState<EstadoGeneracion>("inicial");
   const [error, setError] = useState<unknown>(null);
+  const [version, setVersion] = useState(0);
 
   async function generar(input: GenerarExposicionRequest) {
     setEstado("generando");
@@ -19,6 +20,7 @@ export function useGeneracion() {
     try {
       const resultado = await pedirExposicion(input);
       setExposicion(resultado);
+      setVersion((actual) => actual + 1);
       setEstado("listo");
       return resultado;
     } catch (fallo) {
@@ -42,6 +44,7 @@ export function useGeneracion() {
     exposicion,
     estado,
     error,
+    version,
     generar,
     actualizarExposicion,
     reiniciar,

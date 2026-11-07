@@ -31,7 +31,7 @@ function App() {
   );
   const [modoDemo, setModoDemo] = useState(false);
 
-  const { exposicion, estado, error, generar, actualizarExposicion } =
+  const { exposicion, estado, error, version, generar, actualizarExposicion } =
     useGeneracion();
 
   const resultadoRef = useRef<HTMLHeadingElement>(null);
@@ -175,6 +175,7 @@ function App() {
               <InicioDocumento opciones={opciones} />
 
               <ExposicionEditor
+                key={version}
                 exposicion={exposicion}
                 onCambiar={actualizarExposicion}
               />
