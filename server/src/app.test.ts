@@ -58,3 +58,37 @@ describe("POST /api/generar", () => {
     expect(respuesta.status).toBe(404);
   });
 });
+
+describe("POST /api/exportar-docx", () => {
+  const exposicion = {
+    parrafos: [
+      { id: "p1", texto: "Que los agentes observaron a una persona." },
+    ],
+    datosPendientes: [],
+    fundamentosNormativos: [],
+    alertasRevision: [],
+  };
+
+  it("devuelve un documento Word descargable", async () => {
+    const respuesta = await request(app)
+      .post("/api/exportar-docx")
+      .send({ exposicion });
+
+    expect(respuesta.status).toBe(200);
+    expect(respuesta.headers["content-type"]).toContain(
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    );
+    expect(respuesta.headers["content-disposition"]).toContain(
+      "exposicion-hechos.docx",
+    );
+  });
+
+  it("rechaza una exposición sin párrafos", async () => {
+    const respuesta = await request(app)
+      .post("/api/exportar-docx")
+      .send({ exposicion: { ...exposicion, parrafos: [] } });
+
+    expect(respuesta.status).toBe(400);
+    expect(respuesta.body.error).toBe("Datos de entrada no válidos");
+  });
+});

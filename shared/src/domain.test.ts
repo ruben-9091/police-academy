@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   casoSchema,
   exposicionSchema,
+  exportarDocxRequestSchema,
   generarExposicionRequestSchema,
   type Exposicion,
 } from "./index";
@@ -196,6 +197,24 @@ describe("generarExposicionRequestSchema", () => {
   it("exige el relato bruto", () => {
     expect(
       generarExposicionRequestSchema.safeParse({ relatoBruto: "   " }).success,
+    ).toBe(false);
+  });
+});
+
+describe("exportarDocxRequestSchema", () => {
+  it("aplica datos y opciones por defecto y exige la exposición", () => {
+    const request = exportarDocxRequestSchema.parse({
+      exposicion: exposicionValida,
+    });
+
+    expect(request.datos).toEqual({});
+    expect(request.opciones).toEqual(opcionesPorDefecto);
+  });
+
+  it("rechaza una exposición inválida", () => {
+    expect(
+      exportarDocxRequestSchema.safeParse({ exposicion: { parrafos: [] } })
+        .success,
     ).toBe(false);
   });
 });

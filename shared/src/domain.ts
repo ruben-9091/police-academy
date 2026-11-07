@@ -128,6 +128,13 @@ export const generarExposicionRequestSchema = z.object({
 
 export const generarExposicionResponseSchema = exposicionSchema;
 
+export const exportarDocxRequestSchema = z.object({
+  datos: datosCasoSchema,
+  opciones: opcionesExposicionSchema,
+  exposicion: exposicionSchema,
+});
+
+
 export type Adjunto = z.infer<typeof adjuntoSchema>;
 export type Agente = z.infer<typeof agenteSchema>;
 export type DatosCaso = z.infer<typeof datosCasoSchema>;
@@ -147,4 +154,8 @@ export type GenerarExposicionRequestInput = z.input<
 >;
 export type GenerarExposicionResponse = z.infer<
   typeof generarExposicionResponseSchema
+>;
+export type ExportarDocxRequest = z.infer<typeof exportarDocxRequestSchema>;
+export type ExportarDocxRequestInput = z.input<
+  typeof exportarDocxRequestSchema
 >;
