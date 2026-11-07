@@ -79,6 +79,6 @@ El sitio aún no está enlazado ni desplegado. Cuando lo esté, el despliegue se
 
 ## Estado
 
-La interfaz de trabajo ya está operativa: relato en bruto, datos del caso, opciones, editor por párrafos con marcadores, alertas de revisión y datos pendientes. Se conecta a `POST /api/generar`, que de momento responde con el proveedor determinista `mock` (`AI_PROVIDER=mock`); la cabecera «Modo demostración» lo indica en la interfaz.
+La interfaz de trabajo ya está operativa: relato en bruto, datos del caso, opciones, editor por párrafos con marcadores, alertas de revisión, datos pendientes y descarga en `.docx`. La generación se conecta a `POST /api/generar`, que de momento responde con el proveedor determinista `mock` (`AI_PROVIDER=mock`); la cabecera «Modo demostración» lo indica en la interfaz. La descarga usa `POST /api/exportar-docx`.
 
-Pendiente para las siguientes fases: proveedor Gemini real, transcripción de imagen/PDF y exportación `.docx`. Consulta [AGENTS.md](./AGENTS.md) para las reglas de trabajo del repositorio.
+Pendiente para las siguientes fases: proveedor Gemini real y transcripción de imagen/PDF. Consulta [AGENTS.md](./AGENTS.md) para las reglas de trabajo del repositorio.
