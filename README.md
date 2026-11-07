@@ -79,4 +79,6 @@ El sitio aún no está enlazado ni desplegado. Cuando lo esté, el despliegue se
 
 ## Estado
 
-El contrato de dominio (`Caso`, `Exposicion`, opciones y alertas) ya está en `shared/` con validación Zod y tests. El cliente sigue siendo el starter de Vite; la interfaz real, la generación con IA y la exportación `.docx` se implementan en las siguientes fases. Consulta [AGENTS.md](./AGENTS.md) para las reglas de trabajo del repositorio.
+La interfaz de trabajo ya está operativa: relato en bruto, datos del caso, opciones, editor por párrafos con marcadores, alertas de revisión y datos pendientes. Se conecta a `POST /api/generar`, que de momento responde con el proveedor determinista `mock` (`AI_PROVIDER=mock`); la cabecera «Modo demostración» lo indica en la interfaz.
+
+Pendiente para las siguientes fases: proveedor Gemini real, transcripción de imagen/PDF y exportación `.docx`. Consulta [AGENTS.md](./AGENTS.md) para las reglas de trabajo del repositorio.

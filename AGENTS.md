@@ -7,7 +7,7 @@
 - `shared/` — domain types, Zod schemas, constants and shared validation imported as `@policia/shared`.
 - `netlify/` — Netlify Function adapter for Express (`functions/api.ts`) and Basic Auth Edge Function (`edge-functions/basic-auth.ts`).
 - `proyecto-exposiciones-policiales.md` is the product and domain spec. It is the source of truth for behavior, AI prompts, and `.docx` output.
-- The shared domain contract (`Caso`, `Exposicion`, options and alerts) exists in `shared/`; the client is still the Vite starter and the API only exposes `/api/health`. The AI pipeline and `.docx` export do not exist yet.
+- The client implements the case form, paragraph editor and review panels against `POST /api/generar`; that endpoint currently uses the deterministic `mock` provider. Gemini, transcription and `.docx` export do not exist yet.
 
 ## Commands (from the repo root)
 
@@ -16,7 +16,7 @@
 - `npm run dev:client` / `npm run dev:server` — run one side only.
 - `npm run build` — typecheck all workspaces, then build the client to `client/dist`.
 - `npm run lint` — ESLint across client, server, shared and Netlify code.
-- `npm test` — Vitest across workspaces (currently the shared domain suite).
+- `npm test` — Vitest across workspaces (`shared`, `server` and `client`).
 - `npm run typecheck` — TypeScript for every workspace plus the Netlify adapters.
 - `npm run preview` — preview the client build.
 - `npm run netlify:dev` — Netlify proxy on `:8888` (Vite on `:5180`) with Functions and Basic Auth. Requires the global `netlify-cli`. Put `APP_USER` and `APP_PASSWORD` in `.env.local`; the Edge Function fails closed without them.
