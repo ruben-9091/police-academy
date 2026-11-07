@@ -42,3 +42,34 @@ export function esMarcadorDatoPendiente(value: string): boolean {
 export function extraerMarcadoresDatoPendiente(texto: string): string[] {
   return texto.match(new RegExp(MARCADOR_DATO_PENDIENTE_FUENTE, "g")) ?? [];
 }
+
+export type TramoTexto =
+  | { tipo: "texto"; valor: string }
+  | { tipo: "marcador"; valor: string };
+
+/**
+ * Divide un texto en tramos normales y marcadores para poder resaltarlos.
+ * Evita reutilizar una regex global con estado (`lastIndex`) entre llamadas.
+ */
+export function dividirTextoPorMarcadores(texto: string): TramoTexto[] {
+  const patron = new RegExp(MARCADOR_DATO_PENDIENTE_FUENTE, "g");
+  const tramos: TramoTexto[] = [];
+  let ultimoIndice = 0;
+
+  for (const coincidencia of texto.matchAll(patron)) {
+    const indice = coincidencia.index ?? 0;
+
+    if (indice > ultimoIndice) {
+      tramos.push({ tipo: "texto", valor: texto.slice(ultimoIndice, indice) });
+    }
+
+    tramos.push({ tipo: "marcador", valor: coincidencia[0] });
+    ultimoIndice = indice + coincidencia[0].length;
+  }
+
+  if (ultimoIndice < texto.length) {
+    tramos.push({ tipo: "texto", valor: texto.slice(ultimoIndice) });
+  }
+
+  return tramos;
+}
