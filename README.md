@@ -11,7 +11,7 @@ La especificación funcional completa está en [proyecto-exposiciones-policiales
 ```text
 client/   Vite + React
 server/   API Express
-shared/   tipos, esquemas y constantes compartidas
+shared/   tipos, esquemas Zod y constantes compartidas
 netlify/  Functions y Edge Functions
 ```
 
@@ -53,6 +53,7 @@ npm run dev:client   # solo Vite
 npm run dev:server   # solo Express
 npm run build        # typecheck + build del cliente
 npm run lint         # ESLint de todo el repo
+npm test             # tests de Vitest (dominio compartido)
 npm run typecheck    # TypeScript de todos los workspaces y Netlify
 npm run netlify:dev  # Functions + Edge Functions en :8888
 ```
@@ -78,4 +79,4 @@ El sitio aún no está enlazado ni desplegado. Cuando lo esté, el despliegue se
 
 ## Estado
 
-El cliente sigue siendo el starter de Vite. La interfaz real, la generación con IA y la exportación `.docx` se implementan en las siguientes fases. Consulta [AGENTS.md](./AGENTS.md) para las reglas de trabajo del repositorio.
+El contrato de dominio (`Caso`, `Exposicion`, opciones y alertas) ya está en `shared/` con validación Zod y tests. El cliente sigue siendo el starter de Vite; la interfaz real, la generación con IA y la exportación `.docx` se implementan en las siguientes fases. Consulta [AGENTS.md](./AGENTS.md) para las reglas de trabajo del repositorio.

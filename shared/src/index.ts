@@ -1,1 +1,2 @@
-export const APP_NAME = "Exposiciones de Hechos";
+export * from "./constants";
+export * from "./domain";
