@@ -15,6 +15,7 @@ import { EstadoVacio } from "./components/EstadoVacio";
 import { ExposicionEditor } from "./components/ExposicionEditor";
 import { AlertasRevisionPanel } from "./components/AlertasRevisionPanel";
 import { BannerError } from "./components/BannerError";
+import { FondoAplicacion } from "./components/fondo/FondoAplicacion";
 import { FundamentosPanel } from "./components/FundamentosPanel";
 import { InicioDocumento } from "./components/InicioDocumento";
 import { OpcionesForm } from "./components/OpcionesForm";
@@ -187,124 +188,127 @@ function App() {
   }
 
   return (
-    <div className="aplicacion">
-      <CabeceraApp proveedor={proveedor} />
-      <AvisoDocente proveedor={proveedor} />
+    <>
+      <FondoAplicacion />
+      <div className="aplicacion">
+        <CabeceraApp proveedor={proveedor} />
+        <AvisoDocente proveedor={proveedor} />
 
-      <main className="disposicion">
-        <form className="columna-formulario" onSubmit={manejarGenerar}>
-          <RelatoForm
-            valor={relatoBruto}
-            onCambiar={setRelatoBruto}
-            onCargarEjemplo={() => setRelatoBruto(RELATO_EJEMPLO)}
-            onArchivo={transcribirRelato}
-            estadoTranscripcion={estadoTranscripcion}
-            errorTranscripcion={errorTranscripcion}
-            nombreTranscripcion={nombreTranscripcion}
-            proveedor={proveedor}
-          />
+        <main className="disposicion">
+          <form className="columna-formulario" onSubmit={manejarGenerar}>
+            <RelatoForm
+              valor={relatoBruto}
+              onCambiar={setRelatoBruto}
+              onCargarEjemplo={() => setRelatoBruto(RELATO_EJEMPLO)}
+              onArchivo={transcribirRelato}
+              estadoTranscripcion={estadoTranscripcion}
+              errorTranscripcion={errorTranscripcion}
+              nombreTranscripcion={nombreTranscripcion}
+              proveedor={proveedor}
+            />
 
-          <DatosCasoForm
-            datos={datos}
-            onCambiar={cambiarDato}
-            onCambiarAgentes={cambiarAgentes}
-          />
+            <DatosCasoForm
+              datos={datos}
+              onCambiar={cambiarDato}
+              onCambiarAgentes={cambiarAgentes}
+            />
 
-          <OpcionesForm opciones={opciones} onCambiar={cambiarOpciones} />
+            <OpcionesForm opciones={opciones} onCambiar={cambiarOpciones} />
 
-          <div className="panel acciones-generar">
-            <button
-              type="submit"
-              className="boton-principal"
-              disabled={
-                !relatoBruto.trim() ||
-                estado === "generando" ||
-                relatoDemasiadoLargo
-              }
-            >
-              {estado === "generando"
-                ? "Generando…"
-                : exposicion
-                  ? "Volver a generar"
-                  : "Generar exposición"}
-            </button>
-            {relatoDemasiadoLargo && (
-              <p className="nota nota--alerta" role="alert">
-                El relato supera los{" "}
-                {MAX_RELATO_CARACTERES.toLocaleString("es-ES")} caracteres.
-                Acórtalo para poder generar.
-              </p>
-            )}
-            <p className="nota">
-              Los cambios en el formulario no modifican una exposición ya
-              generada: vuelve a generar para aplicarlos.
-            </p>
-          </div>
-        </form>
-
-        <section
-          className="columna-resultado"
-          aria-labelledby="resultado-titulo"
-          aria-busy={estado === "generando"}
-        >
-          <h2
-            id="resultado-titulo"
-            ref={resultadoRef}
-            tabIndex={-1}
-            className="resultado__titulo"
-          >
-            Resultado
-          </h2>
-
-          {error !== null && (
-            <BannerError error={error} onReintentar={reintentar} />
-          )}
-
-          {!exposicion && estado !== "generando" && <EstadoVacio />}
-
-          {estado === "generando" && !exposicion && (
-            <p className="panel cargando" role="status">
-              Redactando y revisando la exposición… Puede tardar hasta un
-              minuto.
-            </p>
-          )}
-
-          {exposicion && (
-            <>
-              <InicioDocumento opciones={opciones} />
-
-              {errorDescarga !== null && (
-                <BannerError error={errorDescarga} />
-              )}
-
-              <ExposicionEditor
-                key={version}
-                exposicion={exposicion}
-                onCambiar={actualizarExposicion}
-                onDescargar={manejarDescargar}
-                descargando={descargando}
-              />
-
-              <div className="paneles">
-                <DatosPendientesPanel exposicion={exposicion} />
-                <AlertasRevisionPanel alertas={exposicion.alertasRevision} />
-                <FundamentosPanel
-                  fundamentos={exposicion.fundamentosNormativos}
-                  onDescartar={descartarFundamento}
-                />
-              </div>
-
-              {estado === "generando" && (
-                <p className="nota" role="status">
-                  Regenerando y revisando la exposición… Puede tardar hasta un
-                  minuto.
+            <div className="panel acciones-generar">
+              <button
+                type="submit"
+                className="boton-principal"
+                disabled={
+                  !relatoBruto.trim() ||
+                  estado === "generando" ||
+                  relatoDemasiadoLargo
+                }
+              >
+                {estado === "generando"
+                  ? "Generando…"
+                  : exposicion
+                    ? "Volver a generar"
+                    : "Generar exposición"}
+              </button>
+              {relatoDemasiadoLargo && (
+                <p className="nota nota--alerta" role="alert">
+                  El relato supera los{" "}
+                  {MAX_RELATO_CARACTERES.toLocaleString("es-ES")} caracteres.
+                  Acórtalo para poder generar.
                 </p>
               )}
-            </>
-          )}
-        </section>
-      </main>
-    </div>
+              <p className="nota">
+                Los cambios en el formulario no modifican una exposición ya
+                generada: vuelve a generar para aplicarlos.
+              </p>
+            </div>
+          </form>
+
+          <section
+            className="columna-resultado"
+            aria-labelledby="resultado-titulo"
+            aria-busy={estado === "generando"}
+          >
+            <h2
+              id="resultado-titulo"
+              ref={resultadoRef}
+              tabIndex={-1}
+              className="resultado__titulo"
+            >
+              Resultado
+            </h2>
+
+            {error !== null && (
+              <BannerError error={error} onReintentar={reintentar} />
+            )}
+
+            {!exposicion && estado !== "generando" && <EstadoVacio />}
+
+            {estado === "generando" && !exposicion && (
+              <p className="panel cargando" role="status">
+                Redactando y revisando la exposición… Puede tardar hasta un
+                minuto.
+              </p>
+            )}
+
+            {exposicion && (
+              <>
+                <InicioDocumento opciones={opciones} />
+
+                {errorDescarga !== null && (
+                  <BannerError error={errorDescarga} />
+                )}
+
+                <ExposicionEditor
+                  key={version}
+                  exposicion={exposicion}
+                  onCambiar={actualizarExposicion}
+                  onDescargar={manejarDescargar}
+                  descargando={descargando}
+                />
+
+                <div className="paneles">
+                  <DatosPendientesPanel exposicion={exposicion} />
+                  <AlertasRevisionPanel alertas={exposicion.alertasRevision} />
+                  <FundamentosPanel
+                    fundamentos={exposicion.fundamentosNormativos}
+                    onDescartar={descartarFundamento}
+                  />
+                </div>
+
+                {estado === "generando" && (
+                  <p className="nota" role="status">
+                    Regenerando y revisando la exposición… Puede tardar hasta un
+                    minuto.
+                  </p>
+                )}
+              </>
+            )}
+          </section>
+        </main>
+      </div>
+    </>
   );
 }
 

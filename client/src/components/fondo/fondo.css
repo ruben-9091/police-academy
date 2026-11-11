@@ -1,0 +1,21 @@
+.fondo-aplicacion {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% -10%, #12406f 0, transparent 55rem),
+    #0a1a33;
+}
+
+.fondo-aplicacion__velo {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgb(4 12 24 / 55%) 0%,
+    rgb(4 12 24 / 18%) 26%,
+    transparent 62%
+  );
+}

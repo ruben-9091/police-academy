@@ -35,7 +35,7 @@
 - TypeScript is strict and uses `moduleResolution: "Bundler"`. Import shared code as `@policia/shared`; the client Vite config aliases it to the workspace source.
 - `shared/` uses Zod 4. Keep runtime schemas and their inferred types together (`z.infer`) so the API, client and AI pipeline validate the same contract.
 - React Compiler is enabled through `@rolldown/plugin-babel` + `reactCompilerPreset()` in `client/vite.config.ts`. Keep that setup; do not add a separate Babel config or switch to the SWC plugin.
-- CSS uses native nesting with no PostCSS/Tailwind config.
+- CSS uses no PostCSS/Tailwind config. Selectors are flat BEM (`.panel__cabecera`, `.panel--compacto`): native CSS nesting does not accept `&__elemento` or `&--modificador`, and the build silently drops those rules. Nest only with a valid `&` continuation (`&:hover`, `&.clase`) or a type selector.
 - The **root** `package.json` intentionally has no `type: module`: Netlify's esbuild function bundle is CommonJS, and `type: module` makes it fail with `module is not defined`. Keep root config files as `.mjs` (ESLint is `eslint.config.mjs`); the `client`, `server` and `shared` workspaces remain ESM.
 - Node 24 / npm 12. npm may warn that esbuild's postinstall script is blocked by `allowScripts`; Vite and `tsx` currently work despite it. Only run `npm install-scripts approve esbuild` if those tools fail.
 

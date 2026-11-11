@@ -1,6 +1,10 @@
 :root {
   color-scheme: light;
-  --fondo: #f4f2ec;
+  --fondo: #0a1a33;
+  --fondo-profundo: #050e1c;
+  --texto-claro: #f4f8ff;
+  --texto-claro-suave: #c2d3ea;
+  --acento-claro: #9cc2ff;
   --superficie: #ffffff;
   --superficie-suave: #faf9f5;
   --texto: #1f2a33;
@@ -17,7 +21,7 @@
   --alerta-borde: #b42318;
   --alerta-texto: #7a1a12;
   --radio: 10px;
-  --sombra: 0 1px 2px rgb(31 42 51 / 6%), 0 6px 18px rgb(31 42 51 / 4%);
+  --sombra: 0 1px 2px rgb(4 12 24 / 18%), 0 10px 30px rgb(4 12 24 / 22%);
   font-family:
     "Segoe UI",
     system-ui,
@@ -37,9 +41,8 @@
 body {
   margin: 0;
   min-width: 320px;
-  background:
-    radial-gradient(circle at top left, #e9f0ee 0, transparent 45rem),
-    var(--fondo);
+  min-height: 100dvh;
+  background-color: var(--fondo-profundo);
   color: var(--texto);
   font-family: inherit;
   -webkit-font-smoothing: antialiased;
