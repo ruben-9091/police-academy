@@ -156,6 +156,8 @@ La generación se hace en pasos separados, todos en el backend (la API key nunca
 
 Modelo con visión. Devuelve el texto literal, sin corregir ni resumir. Si algo no se lee: `[ilegible]`. El usuario puede editar la transcripción antes de continuar.
 
+Implementación: `POST /api/transcribir` recibe una imagen (JPG, PNG, WebP, HEIC) o un PDF de hasta 4 MB en el campo `archivo`, con `GEMINI_MODEL_VISION` y `store: false`. La llamada usa la versión `v1beta` de la API, única que admite contenido `image` y `document`. Si el modelo no encuentra texto legible responde `SIN_TEXTO` y la API devuelve 422. La transcripción se añade al relato en bruto para que el usuario la revise.
+
 ### 7.2 Análisis previo
 
 Sobre el relato, identificar:
@@ -448,7 +450,7 @@ exposiciones-policiales/
 ## 13. Requisitos no funcionales
 
 - **Privacidad**: los relatos pueden contener datos personales. No registrar el contenido en logs, no enviar nada a terceros salvo la llamada a la API de IA, y avisar al usuario de ello. Recomendar usar casos docentes o anonimizados.
-- **Seguridad**: la API key solo en el servidor; validar tipo y tamaño de los archivos subidos; limitar la frecuencia de peticiones.
+- **Seguridad**: la API key solo en el servidor; validar tipo y tamaño de los archivos subidos; limitar la frecuencia de peticiones. Implementado: MIME y tamaño validados (4 MB), relato limitado a 20.000 caracteres y límite en memoria por IP (10 generaciones, 10 transcripciones y 30 exportaciones cada 10 minutos).
 - **Honestidad del sistema**: la app nunca debe "rellenar" huecos. Si el modelo devuelve datos no presentes en el relato, la autorrevisión debe marcarlos.
 - **Accesibilidad y uso**: interfaz clara, en español, usable en móvil (el usuario puede subir fotos desde el teléfono).
 - **Aviso permanente** de finalidad docente.

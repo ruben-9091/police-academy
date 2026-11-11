@@ -1,19 +1,37 @@
+import { MAX_RELATO_CARACTERES } from "@policia/shared";
+import { SubidaArchivo } from "./SubidaArchivo";
+import type { EstadoTranscripcion } from "../hooks/useTranscripcion";
+
 interface Props {
   valor: string;
   onCambiar: (valor: string) => void;
   onCargarEjemplo: () => void;
+  onArchivo: (archivo: File) => void;
+  estadoTranscripcion: EstadoTranscripcion;
+  errorTranscripcion: unknown;
+  nombreTranscripcion: string | null;
+  proveedor: string | null;
 }
 
-export function RelatoForm({ valor, onCambiar, onCargarEjemplo }: Props) {
+export function RelatoForm({
+  valor,
+  onCambiar,
+  onCargarEjemplo,
+  onArchivo,
+  estadoTranscripcion,
+  errorTranscripcion,
+  nombreTranscripcion,
+  proveedor,
+}: Props) {
   return (
     <section className="panel" aria-labelledby="relato-titulo">
       <div className="panel__cabecera">
         <div>
           <h2 id="relato-titulo">Relato en bruto</h2>
           <p className="panel__ayuda">
-            Pega el relato de la intervención tal y como lo contarías. La
-            exposición se construirá solo con lo que aparezca aquí y en los
-            datos del caso.
+            Pega el relato de la intervención tal y como lo contarías, o súbelo
+            en una foto o un PDF y corrígelo después. La exposición se
+            construirá solo con lo que aparezca aquí y en los datos del caso.
           </p>
         </div>
         <button
@@ -24,6 +42,14 @@ export function RelatoForm({ valor, onCambiar, onCargarEjemplo }: Props) {
           Cargar ejemplo
         </button>
       </div>
+
+      <SubidaArchivo
+        onArchivo={onArchivo}
+        estado={estadoTranscripcion}
+        error={errorTranscripcion}
+        nombre={nombreTranscripcion}
+        proveedor={proveedor}
+      />
 
       <label className="campo">
         <span className="campo__etiqueta">
@@ -38,7 +64,16 @@ export function RelatoForm({ valor, onCambiar, onCargarEjemplo }: Props) {
         />
       </label>
 
-      <p className="contador">{valor.trim().length} caracteres</p>
+      <p
+        className={`contador${
+          valor.trim().length > MAX_RELATO_CARACTERES
+            ? " contador--excedido"
+            : ""
+        }`}
+      >
+        {valor.trim().length.toLocaleString("es-ES")} /{" "}
+        {MAX_RELATO_CARACTERES.toLocaleString("es-ES")} caracteres
+      </p>
     </section>
   );
 }

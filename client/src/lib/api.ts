@@ -1,5 +1,6 @@
 import {
   generarExposicionResponseSchema,
+  transcribirResponseSchema,
   type Exposicion,
   type ExportarDocxRequest,
   type GenerarExposicionRequest,
@@ -70,6 +71,36 @@ export async function generarExposicion(
   }
 
   return resultado.data;
+}
+
+export async function transcribirArchivo(archivo: File): Promise<string> {
+  const formulario = new FormData();
+  formulario.append("archivo", archivo);
+
+  const response = await fetch("/api/transcribir", {
+    method: "POST",
+    body: formulario,
+  });
+
+  if (!response.ok) {
+    const cuerpo = await leerCuerpoError(response);
+    throw new ApiError(
+      cuerpo.error ?? `La transcripción falló (HTTP ${response.status})`,
+      response.status,
+      cuerpo.issues ?? [],
+    );
+  }
+
+  const resultado = transcribirResponseSchema.safeParse(await response.json());
+
+  if (!resultado.success) {
+    throw new ApiError(
+      "La transcripción del servidor no cumple el contrato esperado",
+      502,
+    );
+  }
+
+  return resultado.data.texto;
 }
 
 export async function descargarDocx(

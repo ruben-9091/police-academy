@@ -1,6 +1,11 @@
 import { crearProveedorGemini } from "./gemini";
 import { proveedorMock } from "./mock";
 import { ProveedorNoDisponibleError, type ProveedorIA } from "./provider";
+import {
+  proveedorTranscripcionMock,
+  type ProveedorTranscripcion,
+} from "./transcripcion";
+import { crearProveedorTranscripcionGemini } from "./transcripcionGemini";
 
 /**
  * Se lee en cada petición: `dotenv` se carga en `index.ts` después de importar
@@ -20,6 +25,20 @@ export function obtenerProveedor(): ProveedorIA {
 
   if (nombre === "gemini") {
     return crearProveedorGemini();
+  }
+
+  throw new ProveedorNoDisponibleError(nombre);
+}
+
+export function obtenerProveedorTranscripcion(): ProveedorTranscripcion {
+  const nombre = nombreProveedorConfigurado();
+
+  if (nombre === "mock") {
+    return proveedorTranscripcionMock;
+  }
+
+  if (nombre === "gemini") {
+    return crearProveedorTranscripcionGemini();
   }
 
   throw new ProveedorNoDisponibleError(nombre);

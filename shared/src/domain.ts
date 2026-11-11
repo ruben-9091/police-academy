@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   ENCABEZADOS_MANIFIESTA,
+  MAX_RELATO_CARACTERES,
   OPCIONES_EXPOSICION_POR_DEFECTO,
   TIPOS_ADJUNTO,
   TIPOS_ALERTA_REVISION,
@@ -9,6 +10,11 @@ import {
 
 const textoRequerido = (campo: string) =>
   z.string().trim().min(1, `${campo} no puede estar vacío`);
+
+const relatoSchema = textoRequerido("El relato bruto").max(
+  MAX_RELATO_CARACTERES,
+  `El relato no puede superar los ${MAX_RELATO_CARACTERES} caracteres`,
+);
 
 const textoOpcional = z
   .string()
@@ -113,7 +119,7 @@ export const exposicionSchema = z
 export const casoSchema = z.object({
   id: textoRequerido("El id del caso"),
   creadoEn: z.iso.datetime({ offset: true }),
-  relatoBruto: textoRequerido("El relato bruto"),
+  relatoBruto: relatoSchema,
   adjuntos: z.array(adjuntoSchema).default([]),
   datos: datosCasoSchema,
   opciones: opcionesExposicionSchema,
@@ -121,9 +127,13 @@ export const casoSchema = z.object({
 });
 
 export const generarExposicionRequestSchema = z.object({
-  relatoBruto: textoRequerido("El relato bruto"),
+  relatoBruto: relatoSchema,
   datos: datosCasoSchema,
   opciones: opcionesExposicionSchema,
+});
+
+export const transcribirResponseSchema = z.object({
+  texto: textoRequerido("La transcripción"),
 });
 
 export const generarExposicionResponseSchema = exposicionSchema;
@@ -159,3 +169,4 @@ export type ExportarDocxRequest = z.infer<typeof exportarDocxRequestSchema>;
 export type ExportarDocxRequestInput = z.input<
   typeof exportarDocxRequestSchema
 >;
+export type TranscribirResponse = z.infer<typeof transcribirResponseSchema>;

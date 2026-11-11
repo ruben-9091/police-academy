@@ -7,7 +7,8 @@
 - `shared/` — domain types, Zod schemas, constants and shared validation imported as `@policia/shared`.
 - `netlify/` — Netlify Function adapter for Express (`functions/api.ts`) and Basic Auth Edge Function (`edge-functions/basic-auth.ts`).
 - `proyecto-exposiciones-policiales.md` is the product and domain spec. It is the source of truth for behavior, AI prompts, and `.docx` output.
-- The client implements the case form, paragraph editor and review panels against `POST /api/generar` (real Gemini provider or deterministic `mock`) and exports the edited exposition through `POST /api/exportar-docx`. Image/PDF transcription does not exist yet.
+- The client implements the case form, image/PDF upload with transcription, paragraph editor and review panels against `POST /api/generar` (real Gemini provider or deterministic `mock`), `POST /api/transcribir` and `POST /api/exportar-docx`.
+- `POST /api/transcribir` accepts one image or PDF up to 4 MB in the `archivo` field, marks unreadable text as `[ilegible]` and uses `GEMINI_MODEL_VISION` server-side. The in-memory rate limiter (`server/src/seguridad`) applies per IP to generate, transcribe and export.
 
 ## Commands (from the repo root)
 
@@ -27,7 +28,7 @@
 - Deploy the static client and the Express API on Netlify; Express runs through `serverless-http` as a Netlify Function. `/api/*` is redirected to the function in `netlify.toml`.
 - Use Gemini as the real AI provider and a deterministic mock provider for development and tests.
 - Netlify Free limits: 60 s per synchronous function, 6 MB request (about 4.5 MB binary), 300 credits/month, and no built-in password protection. The Basic Auth Edge Function protects every path and fails closed when `APP_USER` or `APP_PASSWORD` is missing.
-- `npm run netlify:dev` uses `scripts/netlify-dev.mjs` to start the CLI from the parent directory; this avoids Netlify CLI's workspace selector in npm monorepos.
+- `npm run netlify:dev` uses `scripts/netlify-dev.mjs` to start the CLI from the parent directory; this avoids Netlify CLI's workspace selector in npm monorepos. `netlify dev` injects Netlify's AI Gateway `GEMINI_API_KEY` into the Function, so real Gemini calls fail there with 503; test the Function wiring with `AI_PROVIDER=mock` and real Gemini through `npm run dev`.
 
 ## Toolchain notes
 

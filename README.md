@@ -42,6 +42,7 @@ Rellena `.env.local` cuando vayas a usar Gemini:
 AI_PROVIDER=gemini
 GEMINI_API_KEY=...
 GEMINI_MODEL_TEXT=gemini-3.5-flash-lite
+GEMINI_MODEL_VISION=gemini-3.5-flash-lite
 ```
 
 Los modelos `flash` completos pueden responder `503` con la cuota gratuita. El servidor reintenta brevemente ese error; si persiste, cambia de modelo o espera unos minutos.
@@ -74,6 +75,8 @@ npm run netlify:dev
 
 El sitio queda en `http://localhost:8888` y Vite por detrás en `:5180`. Rellena `APP_USER` y `APP_PASSWORD` en `.env.local`; si faltan, la Edge Function responde `503` y no deja pasar ninguna petición. Usa una contraseña larga y distinta de las credenciales de Netlify.
 
+`netlify dev` inyecta su propia `GEMINI_API_KEY` (la del AI Gateway de Netlify) dentro de la Function, así que en ese entorno `AI_PROVIDER=gemini` falla con un `503` de credenciales: el token del Gateway solo vale contra su URL base, que la app no usa. Para probar el recorrido completo de la Function (Basic Auth, `multipart`, errores) usa `AI_PROVIDER=mock` en `.env.local`; para llamar a Gemini de verdad, `npm run dev` contra la API de `:3001`. En un despliegue real, una `GEMINI_API_KEY` propia definida en la UI de Netlify tiene prioridad sobre la del Gateway.
+
 - Límite por función síncrona: 60 s.
 - Petición buffered: 6 MB (unos 4,5 MB binarios).
 - Plan Free: 300 créditos al mes; cada deploy de producción consume 15.
@@ -82,10 +85,14 @@ El sitio aún no está enlazado ni desplegado. Cuando lo esté, el despliegue se
 
 ## Estado
 
-La interfaz de trabajo está operativa: relato en bruto, datos del caso, opciones, editor por párrafos con marcadores, alertas de revisión, datos pendientes, descarte de fundamentos y descarga en `.docx`.
+La interfaz de trabajo está operativa: relato en bruto, subida de imagen o PDF con transcripción, datos del caso, opciones, editor por párrafos con marcadores, alertas de revisión, datos pendientes, descarte de fundamentos y descarga en `.docx`.
 
 `POST /api/generar` usa el proveedor real de Gemini (`AI_PROVIDER=gemini`) o el determinista `mock` (`AI_PROVIDER=mock`). La generación real hace dos llamadas —redacción y autorrevisión— con salida JSON estructurada, `store: false` y un presupuesto interno de 48 s (configurable con `GEMINI_PRESUPUESTO_MS`) para respetar el límite de 60 s de las Netlify Functions. Si la autorrevisión falla o no queda tiempo, se conserva el borrador con la alerta `revision_incompleta`.
 
+`POST /api/transcribir` recibe un archivo `multipart/form-data` en el campo `archivo`, valida el tipo y el tamaño (máximo 4 MB) y devuelve el texto literal. La llamada usa `store: false`, `GEMINI_MODEL_VISION` (por defecto `gemini-3.5-flash-lite`) y un presupuesto de 35 s (`GEMINI_PRESUPUESTO_TRANSCRIPCION_MS`). Lo que no se lee se marca como `[ilegible]`; si no hay texto legible, el endpoint responde `422`.
+
+Las rutas de IA tienen límite de frecuencia en memoria por IP: 10 generaciones, 10 transcripciones y 30 exportaciones cada 10 minutos (`LIMITE_GENERAR`, `LIMITE_TRANSCRIBIR`, `LIMITE_EXPORTAR`).
+
 La cabecera indica el proveedor activo: «Modo demostración» para `mock` o «IA: Gemini» para el proveedor real. La descarga usa `POST /api/exportar-docx`.
 
-Pendiente para las siguientes fases: transcripción de imagen/PDF. Consulta [AGENTS.md](./AGENTS.md) para las reglas de trabajo del repositorio.
+El despliegue en Netlify y la autenticación real siguen pendientes. Consulta [AGENTS.md](./AGENTS.md) para las reglas de trabajo del repositorio.

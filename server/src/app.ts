@@ -3,6 +3,7 @@ import { APP_NAME } from "@policia/shared";
 import { nombreProveedorConfigurado } from "./ai";
 import { generarRouter } from "./routes/generar";
 import { exportarRouter } from "./routes/exportar";
+import { transcribirRouter } from "./routes/transcribir";
 
 export const app = express();
 
@@ -19,6 +20,7 @@ app.get("/api/health", (_req, res) => {
 
 app.use("/api", generarRouter);
 app.use("/api", exportarRouter);
+app.use("/api", transcribirRouter);
 
 app.use("/api", (_req, res) => {
   res.status(404).json({ error: "Not found" });

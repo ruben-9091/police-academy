@@ -3,6 +3,33 @@ export const APP_NAME = "Exposiciones de Hechos";
 export const TIPOS_ADJUNTO = ["imagen", "pdf"] as const;
 export type TipoAdjunto = (typeof TIPOS_ADJUNTO)[number];
 
+/**
+ * 4 MB binarios: al viajar en base64 crecen un tercio, así que el cuerpo queda
+ * por debajo del límite de 6 MB de las Netlify Functions.
+ */
+export const MAX_ADJUNTO_BYTES = 4 * 1024 * 1024;
+
+export const MAX_RELATO_CARACTERES = 20_000;
+
+export const TIPOS_MIME_ADMITIDOS = {
+  "image/jpeg": "imagen",
+  "image/png": "imagen",
+  "image/webp": "imagen",
+  "image/heic": "imagen",
+  "image/heif": "imagen",
+  "application/pdf": "pdf",
+} as const satisfies Record<string, TipoAdjunto>;
+
+export type MimeAdmitido = keyof typeof TIPOS_MIME_ADMITIDOS;
+
+export function esMimeAdmitido(mime: string): mime is MimeAdmitido {
+  return Object.hasOwn(TIPOS_MIME_ADMITIDOS, mime);
+}
+
+export function tipoAdjuntoDeMime(mime: string): TipoAdjunto | null {
+  return esMimeAdmitido(mime) ? TIPOS_MIME_ADMITIDOS[mime] : null;
+}
+
 export const TIPOS_ALERTA_REVISION = [
   "calificacion_sin_conducta",
   "dato_inventado",

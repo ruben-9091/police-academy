@@ -5,6 +5,8 @@ import { REGLAS_APLICACION } from "./reglasAplicacion";
 import { REGLAS_SEGURIDAD } from "./reglasSeguridad";
 import { PROMPT_REVISION } from "./revision";
 
+export { PROMPT_SISTEMA_TRANSCRIPCION, RESPUESTA_SIN_TEXTO } from "./transcripcion";
+
 export const PROMPT_SISTEMA_REDACCION = [
   PROMPT_MAESTRO,
   REGLAS_APLICACION,

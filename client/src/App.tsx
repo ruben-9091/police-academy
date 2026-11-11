@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
+  MAX_RELATO_CARACTERES,
   datosCasoSchema,
   opcionesExposicionSchema,
   type DatosCaso,
@@ -20,6 +21,7 @@ import { OpcionesForm } from "./components/OpcionesForm";
 import { RelatoForm } from "./components/RelatoForm";
 import { RELATO_EJEMPLO } from "./data/ejemplo";
 import { useGeneracion } from "./hooks/useGeneracion";
+import { useTranscripcion } from "./hooks/useTranscripcion";
 import {
   descargarDocx,
   guardarArchivo,
@@ -40,8 +42,17 @@ function App() {
   const { exposicion, estado, error, version, generar, actualizarExposicion } =
     useGeneracion();
 
+  const {
+    estado: estadoTranscripcion,
+    error: errorTranscripcion,
+    nombre: nombreTranscripcion,
+    transcribir,
+  } = useTranscripcion();
+
   const resultadoRef = useRef<HTMLHeadingElement>(null);
   const estadoAnteriorRef = useRef(estado);
+  const relatoDemasiadoLargo =
+    relatoBruto.trim().length > MAX_RELATO_CARACTERES;
 
   useEffect(() => {
     let activo = true;
@@ -96,10 +107,22 @@ function App() {
     };
   }
 
+  async function transcribirRelato(archivo: File) {
+    const texto = await transcribir(archivo);
+
+    if (!texto) {
+      return;
+    }
+
+    setRelatoBruto((actual) =>
+      actual.trim() ? `${actual.trimEnd()}\n\n${texto}` : texto,
+    );
+  }
+
   async function manejarGenerar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
 
-    if (!relatoBruto.trim() || estado === "generando") {
+    if (!relatoBruto.trim() || estado === "generando" || relatoDemasiadoLargo) {
       return;
     }
 
@@ -108,7 +131,7 @@ function App() {
   }
 
   async function reintentar() {
-    if (!relatoBruto.trim()) {
+    if (!relatoBruto.trim() || relatoDemasiadoLargo) {
       return;
     }
 
@@ -174,6 +197,11 @@ function App() {
             valor={relatoBruto}
             onCambiar={setRelatoBruto}
             onCargarEjemplo={() => setRelatoBruto(RELATO_EJEMPLO)}
+            onArchivo={transcribirRelato}
+            estadoTranscripcion={estadoTranscripcion}
+            errorTranscripcion={errorTranscripcion}
+            nombreTranscripcion={nombreTranscripcion}
+            proveedor={proveedor}
           />
 
           <DatosCasoForm
@@ -188,7 +216,11 @@ function App() {
             <button
               type="submit"
               className="boton-principal"
-              disabled={!relatoBruto.trim() || estado === "generando"}
+              disabled={
+                !relatoBruto.trim() ||
+                estado === "generando" ||
+                relatoDemasiadoLargo
+              }
             >
               {estado === "generando"
                 ? "Generando…"
@@ -196,6 +228,13 @@ function App() {
                   ? "Volver a generar"
                   : "Generar exposición"}
             </button>
+            {relatoDemasiadoLargo && (
+              <p className="nota nota--alerta" role="alert">
+                El relato supera los{" "}
+                {MAX_RELATO_CARACTERES.toLocaleString("es-ES")} caracteres.
+                Acórtalo para poder generar.
+              </p>
+            )}
             <p className="nota">
               Los cambios en el formulario no modifican una exposición ya
               generada: vuelve a generar para aplicarlos.

@@ -4,11 +4,15 @@ import {
   exposicionSchema,
   exportarDocxRequestSchema,
   generarExposicionRequestSchema,
+  transcribirResponseSchema,
   type Exposicion,
 } from "./index";
 import {
+  MAX_RELATO_CARACTERES,
   esMarcadorDatoPendiente,
+  esMimeAdmitido,
   extraerMarcadoresDatoPendiente,
+  tipoAdjuntoDeMime,
 } from "./constants";
 
 const casoMinimo = {
@@ -239,5 +243,38 @@ describe("marcadores de datos pendientes", () => {
 
   it("devuelve una lista vacía si no hay marcadores", () => {
     expect(extraerMarcadoresDatoPendiente("Texto sin marcadores")).toEqual([]);
+  });
+});
+
+describe("límites de entrada y adjuntos", () => {
+  it("rechaza relatos por encima del máximo y acepta el máximo exacto", () => {
+    const enElLimite = "a".repeat(MAX_RELATO_CARACTERES);
+
+    expect(
+      generarExposicionRequestSchema.safeParse({ relatoBruto: enElLimite })
+        .success,
+    ).toBe(true);
+    expect(
+      generarExposicionRequestSchema.safeParse({
+        relatoBruto: `${enElLimite}a`,
+      }).success,
+    ).toBe(false);
+  });
+
+  it("clasifica los tipos MIME admitidos y rechaza el resto", () => {
+    expect(esMimeAdmitido("application/pdf")).toBe(true);
+    expect(esMimeAdmitido("image/png")).toBe(true);
+    expect(esMimeAdmitido("image/gif")).toBe(false);
+    expect(tipoAdjuntoDeMime("image/jpeg")).toBe("imagen");
+    expect(tipoAdjuntoDeMime("application/pdf")).toBe("pdf");
+    expect(tipoAdjuntoDeMime("text/plain")).toBeNull();
+  });
+
+  it("valida la respuesta de transcripción", () => {
+    const valida = transcribirResponseSchema.safeParse({ texto: "  Hola  " });
+    const vacia = transcribirResponseSchema.safeParse({ texto: "   " });
+
+    expect(valida.success && valida.data.texto).toBe("Hola");
+    expect(vacia.success).toBe(false);
   });
 });
