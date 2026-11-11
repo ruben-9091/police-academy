@@ -1,10 +1,17 @@
 import { APP_NAME } from "@policia/shared";
 
 interface Props {
-  modoDemo: boolean;
+  proveedor: string | null;
 }
 
-export function CabeceraApp({ modoDemo }: Props) {
+const NOMBRES_PROVEEDOR: Record<string, string> = {
+  gemini: "Gemini",
+};
+
+export function CabeceraApp({ proveedor }: Props) {
+  const esDemo = proveedor === "mock";
+  const nombre = proveedor ? (NOMBRES_PROVEEDOR[proveedor] ?? proveedor) : "";
+
   return (
     <header className="cabecera">
       <div>
@@ -16,12 +23,18 @@ export function CabeceraApp({ modoDemo }: Props) {
           De relato en bruto a exposición formal, editable y revisable.
         </p>
       </div>
-      {modoDemo && (
+      {proveedor !== null && (
         <span
-          className="insignia-demo"
-          title="El servidor está usando el proveedor determinista de desarrollo, no un modelo de IA."
+          className={
+            esDemo ? "insignia-demo" : "insignia-demo insignia-demo--ia"
+          }
+          title={
+            esDemo
+              ? "El servidor está usando el proveedor determinista de desarrollo, no un modelo de IA."
+              : `El servidor está usando ${nombre} para redactar y revisar la exposición.`
+          }
         >
-          Modo demostración
+          {esDemo ? "Modo demostración" : `IA: ${nombre}`}
         </span>
       )}
     </header>

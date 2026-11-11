@@ -1,7 +1,14 @@
 import { Router } from "express";
 import { generarExposicionRequestSchema } from "@policia/shared";
 import { obtenerProveedor } from "../ai";
-import { ProveedorNoDisponibleError } from "../ai/provider";
+import {
+  ProveedorConfiguracionError,
+  ProveedorError,
+  ProveedorLimiteError,
+  ProveedorNoDisponibleError,
+  ProveedorRespuestaInvalidaError,
+  ProveedorTiempoAgotadoError,
+} from "../ai/provider";
 import {
   ExposicionInvalidaError,
   generarExposicion,
@@ -29,18 +36,59 @@ generarRouter.post("/generar", async (request, response, next) => {
   } catch (error) {
     if (error instanceof ExposicionInvalidaError) {
       console.error(
-        "AI output rejected after retry. Invalid paths:",
+        "AI output rejected after repair. Invalid paths:",
         error.issues.join(", "),
       );
-      response
-        .status(502)
-        .json({ error: "La IA devolvió una exposición no válida" });
+      response.status(502).json({
+        error: "La IA devolvió una exposición no válida. Vuelve a intentarlo.",
+      });
+      return;
+    }
+
+    if (error instanceof ProveedorRespuestaInvalidaError) {
+      console.error(
+        "Gemini returned invalid output after repair. Invalid paths:",
+        error.issues.join(", "),
+      );
+      response.status(502).json({
+        error: "La IA devolvió una exposición no válida. Vuelve a intentarlo.",
+      });
+      return;
+    }
+
+    if (error instanceof ProveedorLimiteError) {
+      console.warn("Gemini rate limit reached");
+      response.status(429).json({
+        error:
+          "Se ha alcanzado el límite de uso de Gemini. Espera unos minutos y vuelve a intentarlo.",
+      });
+      return;
+    }
+
+    if (error instanceof ProveedorTiempoAgotadoError) {
+      console.warn("Gemini generation timed out");
+      response.status(504).json({
+        error:
+          "La generación ha superado el tiempo máximo. Vuelve a intentarlo; si persiste, acorta el relato.",
+      });
+      return;
+    }
+
+    if (error instanceof ProveedorConfiguracionError) {
+      console.error("Gemini configuration error:", error.message);
+      response.status(503).json({ error: error.message });
       return;
     }
 
     if (error instanceof ProveedorNoDisponibleError) {
       console.error("AI provider unavailable:", error.proveedor);
-      response.status(500).json({ error: "Proveedor de IA no disponible" });
+      response.status(503).json({ error: "Proveedor de IA no disponible" });
+      return;
+    }
+
+    if (error instanceof ProveedorError) {
+      console.error("Gemini provider error:", error.message);
+      response.status(error.status ?? 502).json({ error: error.message });
       return;
     }
 

@@ -33,7 +33,7 @@ function App() {
   const [opciones, setOpciones] = useState<OpcionesExposicion>(() =>
     opcionesExposicionSchema.parse({}),
   );
-  const [modoDemo, setModoDemo] = useState(false);
+  const [proveedor, setProveedor] = useState<string | null>(null);
   const [descargando, setDescargando] = useState(false);
   const [errorDescarga, setErrorDescarga] = useState<unknown>(null);
 
@@ -48,7 +48,7 @@ function App() {
 
     obtenerEstado().then((estadoApi) => {
       if (activo) {
-        setModoDemo(estadoApi?.provider === "mock");
+        setProveedor(estadoApi?.provider ?? null);
       }
     });
 
@@ -116,6 +116,19 @@ function App() {
     await generar(crearSolicitud());
   }
 
+  function descartarFundamento(indice: number) {
+    if (!exposicion) {
+      return;
+    }
+
+    actualizarExposicion({
+      ...exposicion,
+      fundamentosNormativos: exposicion.fundamentosNormativos.filter(
+        (_fundamento, posicion) => posicion !== indice,
+      ),
+    });
+  }
+
   async function manejarDescargar() {
     if (!exposicion || descargando) {
       return;
@@ -152,8 +165,8 @@ function App() {
 
   return (
     <div className="aplicacion">
-      <CabeceraApp modoDemo={modoDemo} />
-      <AvisoDocente />
+      <CabeceraApp proveedor={proveedor} />
+      <AvisoDocente proveedor={proveedor} />
 
       <main className="disposicion">
         <form className="columna-formulario" onSubmit={manejarGenerar}>
@@ -212,7 +225,8 @@ function App() {
 
           {estado === "generando" && !exposicion && (
             <p className="panel cargando" role="status">
-              Generando exposición…
+              Redactando y revisando la exposición… Puede tardar hasta un
+              minuto.
             </p>
           )}
 
@@ -237,12 +251,14 @@ function App() {
                 <AlertasRevisionPanel alertas={exposicion.alertasRevision} />
                 <FundamentosPanel
                   fundamentos={exposicion.fundamentosNormativos}
+                  onDescartar={descartarFundamento}
                 />
               </div>
 
               {estado === "generando" && (
                 <p className="nota" role="status">
-                  Regenerando la exposición…
+                  Regenerando y revisando la exposición… Puede tardar hasta un
+                  minuto.
                 </p>
               )}
             </>

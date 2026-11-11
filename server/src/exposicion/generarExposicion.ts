@@ -14,28 +14,64 @@ export class ExposicionInvalidaError extends Error {
   }
 }
 
+function validar(salida: unknown):
+  | { ok: true; exposicion: Exposicion }
+  | { ok: false; issues: string[] } {
+  const resultado = generarExposicionResponseSchema.safeParse(salida);
+
+  if (resultado.success) {
+    return { ok: true, exposicion: resultado.data };
+  }
+
+  return {
+    ok: false,
+    issues: resultado.error.issues.map(
+      (issue) => issue.path.join(".") || "(raíz)",
+    ),
+  };
+}
+
 /**
  * Pide la exposición al proveedor y la valida contra el contrato compartido.
- * Si la primera respuesta es inválida, reintenta una vez (spec §14.4).
+ *
+ * Si el proveedor puede reparar una salida inválida, se usa esa vía para no
+ * repetir toda la pipeline. El mock, que no la implementa, conserva el
+ * reintento completo de la spec §14.4.
  */
 export async function generarExposicion(
   proveedor: ProveedorIA,
   input: GenerarExposicionRequest,
 ): Promise<Exposicion> {
-  let ultimosIssues: string[] = [];
+  let salida = await proveedor.generarExposicion(input);
+  let resultado = validar(salida);
 
-  for (let intento = 1; intento <= MAX_INTENTOS; intento += 1) {
-    const salida = await proveedor.generarExposicion(input);
-    const resultado = generarExposicionResponseSchema.safeParse(salida);
-
-    if (resultado.success) {
-      return resultado.data;
-    }
-
-    ultimosIssues = resultado.error.issues.map(
-      (issue) => issue.path.join(".") || "(raíz)",
-    );
+  if (resultado.ok) {
+    return resultado.exposicion;
   }
 
-  throw new ExposicionInvalidaError(ultimosIssues);
+  if (proveedor.repararExposicion) {
+    const reparada = await proveedor.repararExposicion(
+      input,
+      salida,
+      resultado.issues,
+    );
+    const validada = validar(reparada);
+
+    if (validada.ok) {
+      return validada.exposicion;
+    }
+
+    throw new ExposicionInvalidaError(validada.issues);
+  }
+
+  for (let intento = 2; intento <= MAX_INTENTOS; intento += 1) {
+    salida = await proveedor.generarExposicion(input);
+    resultado = validar(salida);
+
+    if (resultado.ok) {
+      return resultado.exposicion;
+    }
+  }
+
+  throw new ExposicionInvalidaError(resultado.issues);
 }

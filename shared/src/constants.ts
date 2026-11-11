@@ -9,6 +9,7 @@ export const TIPOS_ALERTA_REVISION = [
   "laguna_cronologica",
   "articulo_relleno",
   "formato",
+  "revision_incompleta",
 ] as const;
 export type TipoAlertaRevision = (typeof TIPOS_ALERTA_REVISION)[number];
 

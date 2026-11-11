@@ -1,3 +1,4 @@
+import { crearProveedorGemini } from "./gemini";
 import { proveedorMock } from "./mock";
 import { ProveedorNoDisponibleError, type ProveedorIA } from "./provider";
 
@@ -17,7 +18,9 @@ export function obtenerProveedor(): ProveedorIA {
     return proveedorMock;
   }
 
-  // Gemini se implementa en la fase de IA. Hasta entonces, fallar de forma
-  // explícita en lugar de devolver contenido simulado sin avisar.
+  if (nombre === "gemini") {
+    return crearProveedorGemini();
+  }
+
   throw new ProveedorNoDisponibleError(nombre);
 }

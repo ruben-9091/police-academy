@@ -7,7 +7,7 @@
 - `shared/` — domain types, Zod schemas, constants and shared validation imported as `@policia/shared`.
 - `netlify/` — Netlify Function adapter for Express (`functions/api.ts`) and Basic Auth Edge Function (`edge-functions/basic-auth.ts`).
 - `proyecto-exposiciones-policiales.md` is the product and domain spec. It is the source of truth for behavior, AI prompts, and `.docx` output.
-- The client implements the case form, paragraph editor and review panels against `POST /api/generar` (deterministic `mock` provider) and exports the edited exposition through `POST /api/exportar-docx`. Gemini and transcription do not exist yet.
+- The client implements the case form, paragraph editor and review panels against `POST /api/generar` (real Gemini provider or deterministic `mock`) and exports the edited exposition through `POST /api/exportar-docx`. Image/PDF transcription does not exist yet.
 
 ## Commands (from the repo root)
 

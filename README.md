@@ -41,9 +41,10 @@ Rellena `.env.local` cuando vayas a usar Gemini:
 ```env
 AI_PROVIDER=gemini
 GEMINI_API_KEY=...
+GEMINI_MODEL_TEXT=gemini-3.8-flash
 ```
 
-Sin clave, el proveedor `mock` permite desarrollar sin llamadas externas.
+La clave se queda en el servidor: nunca uses el prefijo `VITE_`. Sin clave, el proveedor `mock` permite desarrollar y ejecutar los tests sin llamadas externas.
 
 ## Comandos
 
@@ -53,7 +54,7 @@ npm run dev:client   # solo Vite
 npm run dev:server   # solo Express
 npm run build        # typecheck + build del cliente
 npm run lint         # ESLint de todo el repo
-npm test             # tests de Vitest (dominio compartido)
+npm test             # tests de Vitest (shared, server y client)
 npm run typecheck    # TypeScript de todos los workspaces y Netlify
 npm run netlify:dev  # Functions + Edge Functions en :8888
 ```
@@ -79,6 +80,10 @@ El sitio aún no está enlazado ni desplegado. Cuando lo esté, el despliegue se
 
 ## Estado
 
-La interfaz de trabajo ya está operativa: relato en bruto, datos del caso, opciones, editor por párrafos con marcadores, alertas de revisión, datos pendientes y descarga en `.docx`. La generación se conecta a `POST /api/generar`, que de momento responde con el proveedor determinista `mock` (`AI_PROVIDER=mock`); la cabecera «Modo demostración» lo indica en la interfaz. La descarga usa `POST /api/exportar-docx`.
+La interfaz de trabajo está operativa: relato en bruto, datos del caso, opciones, editor por párrafos con marcadores, alertas de revisión, datos pendientes, descarte de fundamentos y descarga en `.docx`.
 
-Pendiente para las siguientes fases: proveedor Gemini real y transcripción de imagen/PDF. Consulta [AGENTS.md](./AGENTS.md) para las reglas de trabajo del repositorio.
+`POST /api/generar` usa el proveedor real de Gemini (`AI_PROVIDER=gemini`) o el determinista `mock` (`AI_PROVIDER=mock`). La generación real hace dos llamadas —redacción y autorrevisión— con salida JSON estructurada, `store: false` y un presupuesto interno de 48 s (configurable con `GEMINI_PRESUPUESTO_MS`) para respetar el límite de 60 s de las Netlify Functions. Si la autorrevisión falla o no queda tiempo, se conserva el borrador con la alerta `revision_incompleta`.
+
+La cabecera indica el proveedor activo: «Modo demostración» para `mock` o «IA: Gemini» para el proveedor real. La descarga usa `POST /api/exportar-docx`.
+
+Pendiente para las siguientes fases: transcripción de imagen/PDF. Consulta [AGENTS.md](./AGENTS.md) para las reglas de trabajo del repositorio.

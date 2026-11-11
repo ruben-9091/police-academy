@@ -139,7 +139,7 @@ type Exposicion = {
   datosPendientes: { marcador: string; motivo?: string }[];
   fundamentosNormativos: { norma: string; porQueAplica: string }[];
   alertasRevision: {
-    tipo: "calificacion_sin_conducta" | "dato_inventado" | "laguna_cronologica" | "articulo_relleno" | "formato";
+    tipo: "calificacion_sin_conducta" | "dato_inventado" | "laguna_cronologica" | "articulo_relleno" | "formato" | "revision_incompleta";
     fragmento: string;
     sugerencia: string;
   }[];
@@ -181,6 +181,8 @@ Segunda llamada que revisa el borrador con estas preguntas y rellena `alertasRev
 - ¿Los artículos citados aportan utilidad real o son relleno?
 - ¿El motivo de la intervención se apoya en conductas observables descritas? (por ejemplo, si el relato menciona rasgos físicos de la persona, comprobar que el motivo de la intervención descansa en la conducta y no solo en esos rasgos).
 - ¿El documento sigue el formato (sección 3 y 10)?
+
+Si la autorrevisión falla o no queda tiempo dentro del presupuesto de 48 s, se conserva el borrador y se añade una alerta `revision_incompleta`.
 
 ---
 
@@ -399,7 +401,7 @@ Como la apertura por defecto no lleva cabecera, incluir la nota de finalidad doc
 
 - **Frontend**: React + Vite + TypeScript. Editor por párrafos, resaltado de marcadores, vista previa.
 - **Backend**: Node.js + Express (o Hono) con TypeScript.
-- **IA**: API de Anthropic (Claude) desde el backend. Modelo con visión para la transcripción de imágenes y PDF. La API key en variable de entorno (`ANTHROPIC_API_KEY`), nunca en el cliente.
+- **IA**: API de Gemini (Google AI Studio) desde el backend, con salida JSON estructurada. Modelo de texto `gemini-3.8-flash` y modelo con visión para la transcripción de imágenes y PDF. La API key en variable de entorno (`GEMINI_API_KEY`), nunca en el cliente. Las llamadas usan `store: false` para no conservar las interacciones.
 - **Word**: librería `docx` de npm, en el backend, a partir de la plantilla del Anexo A.
 - **Persistencia** (v2): SQLite o ficheros JSON locales. En el MVP basta con guardar en memoria o `localStorage` del navegador.
 - **Subida de archivos**: `multer` (límite de tamaño y solo imagen/PDF).
@@ -412,7 +414,7 @@ Como la apertura por defecto no lleva cabecera, incluir la nota de finalidad doc
 exposiciones-policiales/
 ├─ PROYECTO.md                  (este documento)
 ├─ package.json
-├─ .env.example                 (ANTHROPIC_API_KEY=)
+├─ .env.example                 (GEMINI_API_KEY=)
 ├─ server/
 │  ├─ index.ts
 │  ├─ routes/
@@ -458,7 +460,7 @@ exposiciones-policiales/
 1. Crear el esqueleto (cliente + servidor) y `.env.example`.
 2. Definir los tipos de la sección 6 en `types.ts`.
 3. Guardar el Prompt Maestro (8.1 y 8.2) y el ejemplo (sección 9) como constantes en `server/ia/`.
-4. Endpoint `POST /api/generar`: recibe `relatoBruto` y `datos`, ejecuta análisis → redacción → autorrevisión y devuelve el JSON de `Exposicion`. Validar el JSON y reintentar una vez si viene mal formado.
+4. Endpoint `POST /api/generar`: recibe `relatoBruto` y `datos`, ejecuta redacción → autorrevisión y devuelve el JSON de `Exposicion`. Validar el JSON y repararlo una vez si viene mal formado.
 5. Pantalla con textarea, formulario de datos y botón "Generar exposición".
 6. Editor de la exposición con los marcadores resaltados.
 7. Endpoint `POST /api/exportar-docx` con la plantilla del Anexo A (con cabecera opcional) y botón de descarga.

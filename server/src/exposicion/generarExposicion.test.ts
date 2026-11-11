@@ -61,4 +61,44 @@ describe("generarExposicion", () => {
       ExposicionInvalidaError,
     );
   });
+
+  it("usa repararExposicion en lugar de repetir toda la generación", async () => {
+    let generaciones = 0;
+    let reparaciones = 0;
+    let issuesRecibidos: string[] = [];
+
+    const proveedor: ProveedorIA = {
+      nombre: "falso",
+      async generarExposicion() {
+        generaciones += 1;
+        return { parrafos: "no es un array" };
+      },
+      async repararExposicion(_input, _salida, issues) {
+        reparaciones += 1;
+        issuesRecibidos = issues;
+        return valida;
+      },
+    };
+
+    await expect(generarExposicion(proveedor, input)).resolves.toEqual(valida);
+    expect(generaciones).toBe(1);
+    expect(reparaciones).toBe(1);
+    expect(issuesRecibidos.length).toBeGreaterThan(0);
+  });
+
+  it("falla si la reparación tampoco cumple el contrato", async () => {
+    const proveedor: ProveedorIA = {
+      nombre: "falso",
+      async generarExposicion() {
+        return {};
+      },
+      async repararExposicion() {
+        return {};
+      },
+    };
+
+    await expect(generarExposicion(proveedor, input)).rejects.toBeInstanceOf(
+      ExposicionInvalidaError,
+    );
+  });
 });

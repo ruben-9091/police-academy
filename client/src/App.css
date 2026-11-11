@@ -45,6 +45,12 @@
   font-size: 0.78rem;
   font-weight: 650;
   white-space: nowrap;
+
+  &--ia {
+    background: var(--acento-suave);
+    border-color: #bcd3da;
+    color: var(--acento-oscuro);
+  }
 }
 
 .aviso-docente {
@@ -55,6 +61,15 @@
   padding: 0.65rem 0.9rem;
   font-size: 0.9rem;
   color: var(--acento-oscuro);
+
+  p {
+    margin: 0;
+  }
+}
+
+.aviso-docente p.aviso-docente__privacidad {
+  margin-top: 0.4rem;
+  font-size: 0.84rem;
 }
 
 .disposicion {
@@ -323,6 +338,20 @@
   }
 }
 
+.boton-enlace {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--texto-suave);
+  font-size: 0.78rem;
+  font-weight: 650;
+  text-decoration: underline;
+
+  &:hover {
+    color: var(--alerta-borde);
+  }
+}
+
 .opcion-casilla,
 .opcion-radio {
   display: flex;
@@ -579,6 +608,13 @@
     p {
       color: var(--texto-suave);
     }
+  }
+
+  &__cabecera {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.6rem;
   }
 }
 

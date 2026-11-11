@@ -1,0 +1,11 @@
+/**
+ * Texto literal de la sección 9 de `proyecto-exposiciones-policiales.md`.
+ * Es solo un modelo de estilo: sus datos no se reutilizan.
+ */
+export const EJEMPLO_APERTURA = `- MANIFIESTA:
+
+- Que los agentes actuantes, con NIP G428 y G617, componentes del indicativo PLAYAS POSTIGUET de la Policía Local de Alicante, encontrándose de servicio debidamente uniformados, hacen constar que, siendo aproximadamente las 16:10 horas del día de hoy, mientras participaban en un dispositivo operativo específico contra la venta ambulante no autorizada, establecido en las inmediaciones del acceso n.º 2 del Paseo de Gómiz, Playa del Postiguet, con la finalidad de prevenir dicha actividad ilícita y garantizar la seguridad ciudadana, observaron cómo varios vendedores ambulantes emprendían la huida al detectar la presencia policial, abandonando precipitadamente la zona, conducta habitual en este tipo de dispositivos.
+
+- Que en ese contexto, los agentes observaron a un varón de fenotipo subsahariano que portaba una mochila y vestía una camiseta con los colores y diseño de la selección española de fútbol, aparentemente destinada a la venta ambulante por sus características externas. Al no percatarse de la proximidad de la dotación policial, el citado individuo, que inicialmente no había advertido la presencia de los agentes, mostró una actitud visiblemente nerviosa, cambiando bruscamente el sentido de la marcha y efectuando maniobras evasivas, dirigiendo reiteradas miradas hacia los agentes, comportamiento que motivó que éstos procedieran a darle el alto policial, identificándose como agentes de la autoridad mediante su uniforme reglamentario.
+
+- Que el individuo, tras dudar unos instantes, finalmente detuvo su marcha. Requerido acerca de si se dedicaba a la venta ambulante no autorizada, manifestó que no realizaba dicha actividad. Acto seguido, y en el ejercicio de las funciones de prevención y comprobación legalmente atribuidas a los agentes de la autoridad, se le requirió para que exhibiera voluntariamente el contenido de la mochila que portaba. El requerido se negó inicialmente a ello, aferrándose a la misma y ofreciendo una actitud de resistencia pasiva, siendo necesario que el agente actuante procediera a retirársela mediante el empleo de la mínima fuerza imprescindible, necesaria, idónea y proporcionada, sin ocasionarle lesión alguna.`;

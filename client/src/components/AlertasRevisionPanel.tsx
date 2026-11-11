@@ -13,6 +13,7 @@ const ETIQUETAS: Record<TipoAlertaRevision, string> = {
   laguna_cronologica: "Laguna cronológica",
   articulo_relleno: "Artículo de relleno",
   formato: "Formato",
+  revision_incompleta: "Revisión incompleta",
 };
 
 export function AlertasRevisionPanel({ alertas }: Props) {
