@@ -27,10 +27,10 @@
 }
 
 .cabecera__titulo {
-  font-size: clamp(1.7rem, 3.2vw, 2.4rem);
-  color: var(--texto-claro);
+  display: flex;
+  align-items: center;
   margin-top: 0.2rem;
-  text-shadow: 0 2px 18px rgb(4 12 24 / 55%);
+  line-height: 1;
 }
 
 .cabecera__subtitulo {
