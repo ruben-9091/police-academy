@@ -41,8 +41,10 @@ Rellena `.env.local` cuando vayas a usar Gemini:
 ```env
 AI_PROVIDER=gemini
 GEMINI_API_KEY=...
-GEMINI_MODEL_TEXT=gemini-3.8-flash
+GEMINI_MODEL_TEXT=gemini-3.5-flash-lite
 ```
+
+Los modelos `flash` completos pueden responder `503` con la cuota gratuita. El servidor reintenta brevemente ese error; si persiste, cambia de modelo o espera unos minutos.
 
 La clave se queda en el servidor: nunca uses el prefijo `VITE_`. Sin clave, el proveedor `mock` permite desarrollar y ejecutar los tests sin llamadas externas.
 

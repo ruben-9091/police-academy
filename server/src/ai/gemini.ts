@@ -1,4 +1,4 @@
-import { ApiError, GoogleGenAI } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import {
   generarExposicionResponseSchema,
   type AlertaRevision,
@@ -48,9 +48,16 @@ export interface ParametrosInteraccion {
   store?: boolean;
 }
 
+export interface OpcionesInteraccion {
+  retries?: { strategy: "none" };
+}
+
 export interface ClienteInteracciones {
   interactions: {
-    create(params: ParametrosInteraccion): Promise<RespuestaInteraccion>;
+    create(
+      params: ParametrosInteraccion,
+      options?: OpcionesInteraccion,
+    ): Promise<RespuestaInteraccion>;
   };
 }
 
@@ -62,14 +69,17 @@ export interface OpcionesProveedorGemini {
   timeoutRedaccionMs?: number;
   timeoutRevisionMs?: number;
   timeoutReparacionMs?: number;
+  /** Esperas entre reintentos si Gemini responde 503. */
+  esperasSobrecargaMs?: number[];
   ahora?: () => number;
 }
 
-const MODELO_POR_DEFECTO = "gemini-3.8-flash";
+const MODELO_POR_DEFECTO = "gemini-3.5-flash-lite";
 const PRESUPUESTO_POR_DEFECTO = 48_000;
 const MARGEN_MS = 3_000;
 const MIN_LLAMADA_MS = 4_000;
 const MIN_REVISION_MS = 8_000;
+const ESPERAS_SOBRECARGA_POR_DEFECTO = [750, 1_500];
 
 type Validacion =
   | { ok: true; data: Exposicion }
@@ -131,6 +141,26 @@ function conLimite<T>(promesa: Promise<T>, ms: number): Promise<T> {
   });
 }
 
+function esperar(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function estadoHttp(error: unknown): number | undefined {
+  if (typeof error !== "object" || error === null) {
+    return undefined;
+  }
+
+  const registro = error as Record<string, unknown>;
+
+  for (const clave of ["status", "statusCode"]) {
+    if (typeof registro[clave] === "number") {
+      return registro[clave] as number;
+    }
+  }
+
+  return undefined;
+}
+
 function mapearError(error: unknown): Error {
   if (
     error instanceof ProveedorConfiguracionError ||
@@ -142,36 +172,44 @@ function mapearError(error: unknown): Error {
     return error;
   }
 
-  if (error instanceof ApiError) {
-    if (error.status === 429) {
-      return new ProveedorLimiteError();
-    }
+  const status = estadoHttp(error);
 
-    if (error.status === 401 || error.status === 403) {
-      return new ProveedorConfiguracionError(
-        "La clave de Gemini no es válida o no tiene permisos suficientes.",
-      );
-    }
+  if (status === 429) {
+    return new ProveedorLimiteError();
+  }
 
-    if (error.status === 404) {
-      return new ProveedorConfiguracionError(
-        "El modelo de Gemini configurado no está disponible.",
-      );
-    }
+  if (status === 401 || status === 403) {
+    return new ProveedorConfiguracionError(
+      "La clave de Gemini no es válida o no tiene permisos suficientes.",
+    );
+  }
 
-    if (error.status === 400) {
-      return new ProveedorError(
-        "Gemini rechazó la petición de generación.",
-        400,
-      );
-    }
+  if (status === 404) {
+    return new ProveedorConfiguracionError(
+      "El modelo de Gemini configurado no está disponible.",
+    );
+  }
 
-    if (error.status >= 500) {
-      return new ProveedorError(
-        "Gemini no está disponible en este momento.",
-        502,
-      );
-    }
+  if (status === 400) {
+    return new ProveedorError("Gemini rechazó la petición de generación.", 400);
+  }
+
+  if (status === 503) {
+    return new ProveedorError(
+      "Gemini no está disponible en este momento. Vuelve a intentarlo en unos minutos.",
+      503,
+    );
+  }
+
+  if (status === 504) {
+    return new ProveedorTiempoAgotadoError();
+  }
+
+  if (status !== undefined && status >= 500) {
+    return new ProveedorError(
+      "Gemini no está disponible en este momento.",
+      502,
+    );
   }
 
   if (
@@ -258,6 +296,8 @@ export function crearProveedorGemini(
   const timeoutRedaccionMs = opciones.timeoutRedaccionMs ?? 30_000;
   const timeoutRevisionMs = opciones.timeoutRevisionMs ?? 15_000;
   const timeoutReparacionMs = opciones.timeoutReparacionMs ?? 15_000;
+  const esperasSobrecarga =
+    opciones.esperasSobrecargaMs ?? ESPERAS_SOBRECARGA_POR_DEFECTO;
   const ahora = opciones.ahora ?? Date.now;
 
   const cliente =
@@ -273,15 +313,43 @@ export function crearProveedorGemini(
     parametros: Omit<ParametrosInteraccion, "store">,
     timeoutMs: number,
   ): Promise<unknown> {
-    try {
-      const respuesta = await conLimite(
-        cliente.interactions.create({ ...parametros, store: false }),
-        timeoutMs,
-      );
+    const inicio = Date.now();
+    const maxIntentos = esperasSobrecarga.length + 1;
 
-      return parsearSalida(respuesta);
-    } catch (error) {
-      throw mapearError(error);
+    for (let intento = 1; ; intento += 1) {
+      const restante = timeoutMs - (Date.now() - inicio);
+
+      if (restante <= 0) {
+        throw new ProveedorTiempoAgotadoError();
+      }
+
+      try {
+        const respuesta = await conLimite(
+          cliente.interactions.create(
+            { ...parametros, store: false },
+            { retries: { strategy: "none" } },
+          ),
+          restante,
+        );
+
+        return parsearSalida(respuesta);
+      } catch (error) {
+        const mapeado = mapearError(error);
+        const esSobrecarga =
+          mapeado instanceof ProveedorError && mapeado.status === 503;
+
+        if (!esSobrecarga || intento >= maxIntentos) {
+          throw mapeado;
+        }
+
+        const espera = esperasSobrecarga[intento - 1] ?? 0;
+
+        if (restante <= espera) {
+          throw mapeado;
+        }
+
+        await esperar(espera);
+      }
     }
   }
 

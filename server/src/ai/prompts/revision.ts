@@ -11,9 +11,10 @@ Comprueba, una por una, estas cuestiones sobre el borrador:
 1. ¿Hay alguna calificación jurídica o valorativa sin la conducta observable que la sustente? (por ejemplo, "actitud agresiva", "resistencia activa", "desobedeció gravemente").
 2. ¿Hay algún dato que no aparezca en el relato original ni en los datos del caso? Debe eliminarse o marcarse.
 3. ¿La cronología es reconstruible de principio a fin, sin saltos ni ambigüedades?
-4. ¿Los artículos citados aportan utilidad real o son relleno?
+4. ¿Los artículos citados aportan utilidad real o son relleno? ¿Se citan en forma condicional o "por si acaso" sin que el relato describa su presupuesto de hecho? Señálalo como "articulo_relleno".
 5. ¿El motivo de la intervención se apoya en conductas observables descritas? Si el relato menciona rasgos físicos o étnicos, comprueba que el motivo no descansa solo en esos rasgos.
 6. ¿El documento sigue el formato: párrafos que empiezan por "Que ", sin encabezado ni guiones dentro del JSON?
+7. ¿El borrador describe conductas físicas, manifestaciones o actuaciones que no aparecen en el relato original (por ejemplo, movimientos concretos para resistirse, frases pronunciadas, motivos de la actuación, traslados o grilletes)? Señálalos como "dato_inventado" y propón sustituirlos por el marcador correspondiente, sin inventar el dato.
 
 Para cada problema, devuelve una alerta con esta forma exacta:
 {

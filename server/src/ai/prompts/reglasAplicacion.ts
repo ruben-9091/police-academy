@@ -10,7 +10,7 @@ export const REGLAS_APLICACION = `REGLAS ADICIONALES DE LA APLICACIÓN
 
 3. Citas textuales entre comillas dobles.
 
-4. Si el relato original contiene calificaciones sin conducta descrita (p. ej. "actitud agresiva", "resistencia pasiva", "desobediencia"), descríbelas con la conducta observable que el relato aporte. Si el relato no aporta esa conducta, NO la inventes: marca [DATO QUE CONVENDRÍA CONCRETAR: ...].
+4. Si el relato original contiene calificaciones sin conducta descrita (p. ej. "actitud agresiva", "resistencia pasiva", "desobediencia"), descríbelas con la conducta observable que el relato aporte. Si el relato no aporta esa conducta, NO la inventes ni reutilices la del ejemplo de estilo: marca [DATO QUE CONVENDRÍA CONCRETAR: ...] en ese punto.
 
 5. Si el relato menciona rasgos físicos o étnicos de una persona, incluirlos solo como dato descriptivo e identificativo. El motivo de la intervención debe sostenerse en la conducta observable que el relato describa; si no la describe, señálalo en las alertas de revisión.
 

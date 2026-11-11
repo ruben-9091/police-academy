@@ -401,7 +401,7 @@ Como la apertura por defecto no lleva cabecera, incluir la nota de finalidad doc
 
 - **Frontend**: React + Vite + TypeScript. Editor por párrafos, resaltado de marcadores, vista previa.
 - **Backend**: Node.js + Express (o Hono) con TypeScript.
-- **IA**: API de Gemini (Google AI Studio) desde el backend, con salida JSON estructurada. Modelo de texto `gemini-3.8-flash` y modelo con visión para la transcripción de imágenes y PDF. La API key en variable de entorno (`GEMINI_API_KEY`), nunca en el cliente. Las llamadas usan `store: false` para no conservar las interacciones.
+- **IA**: API de Gemini (Google AI Studio) desde el backend, con salida JSON estructurada. Modelo de texto `gemini-3.5-flash-lite`, el más estable con la cuota gratuita (los `flash` completos pueden responder 503 por alta demanda) y modelo con visión para la transcripción de imágenes y PDF. La API key en variable de entorno (`GEMINI_API_KEY`), nunca en el cliente. Las llamadas usan `store: false` para no conservar las interacciones.
 - **Word**: librería `docx` de npm, en el backend, a partir de la plantilla del Anexo A.
 - **Persistencia** (v2): SQLite o ficheros JSON locales. En el MVP basta con guardar en memoria o `localStorage` del navegador.
 - **Subida de archivos**: `multer` (límite de tamaño y solo imagen/PDF).

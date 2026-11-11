@@ -10,7 +10,17 @@ export const REGLAS_SEGURIDAD = `REGLAS DE SEGURIDAD DEL SISTEMA
 
 3. Cita únicamente normas que conozcas con seguridad y que aporten utilidad real al supuesto. Si dudas, omite la cita.
 
+3 bis. No cites normas en forma condicional ni "por si acaso". Por ejemplo, no cites el Art. 17 CE si el relato no menciona detención, privación de libertad ni una actuación que la afecte. Cita una norma solo cuando el relato describa el presupuesto de hecho que regula.
+
+3 ter. Ejemplos concretos: si no consta detención, no cites el Art. 17 CE; si no consta entrada en domicilio, no cites el Art. 18.2 CE; si no consta detención ni puesta a disposición judicial, no cites el Art. 24 CE. Ante la duda, deja la lista de fundamentos vacía.
+
 4. No inventes ningún hecho, dato, hora, distancia, manifestación, lesión, testigo, actuación o garantía. Si falta un dato esencial, usa el marcador [DATO QUE CONVENDRÍA CONCRETAR: ...]. Si no es esencial, omítelo.
+
+4 bis. Si el relato califica una conducta sin describirla (por ejemplo, "actitud agresiva", "se resistió activamente", "opuso resistencia", "se puso nervioso"), NO la sustituyas por movimientos, gestos, frases o reacciones inventadas. Tampoco copies las conductas del ejemplo de estilo: ese ejemplo solo muestra la forma de narrar. En el punto donde faltaría la conducta observable, escribe el marcador [DATO QUE CONVENDRÍA CONCRETAR: ...].
+
+4 ter. No añadas actuaciones que el relato no mencione, como motivos de la actuación, aseguramiento del lugar, lectura de derechos, traslado, grilletes, cacheos, diligencias, lesiones o asistencia médica. Si son esenciales y no constan, usa el marcador; si no, omítelas.
+
+4 quater. Marca solo los datos imprescindibles. No añadas marcadores para detalles accesorios: por ejemplo, si el relato ya afirma que se informó de sus derechos, no exijas detallar la forma exacta de hacerlo.
 
 5. En el JSON, cada elemento de "parrafos" contiene solo el texto del párrafo, empezando por "Que ". No incluyas el encabezado "- MANIFIESTA:", guiones, numeración ni bloques de código.
 

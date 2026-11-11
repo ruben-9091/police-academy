@@ -183,6 +183,55 @@ describe("crearProveedorGemini", () => {
     );
   });
 
+  it("reintenta una sobrecarga transitoria antes de rendirse", async () => {
+    const { proveedor, llamadas } = proveedorCon(
+      [new ApiError({ message: "high demand", status: 503 }), borrador, revision],
+      { esperasSobrecargaMs: [0] },
+    );
+
+    const resultado = generarExposicionResponseSchema.parse(
+      await proveedor.generarExposicion(input),
+    );
+
+    expect(resultado.parrafos).toEqual(borrador.parrafos);
+    expect(llamadas).toHaveLength(3);
+  });
+
+  it("agota los reintentos de sobrecarga y devuelve 503", async () => {
+    const { proveedor, llamadas } = proveedorCon(
+      [new ApiError({ message: "high demand", status: 503 })],
+      { esperasSobrecargaMs: [0, 0] },
+    );
+
+    await expect(proveedor.generarExposicion(input)).rejects.toMatchObject({
+      name: "ProveedorError",
+      status: 503,
+    });
+    expect(llamadas).toHaveLength(3);
+  });
+
+  it("reconoce los errores del cliente de Interactions por statusCode", async () => {
+    const error = Object.assign(new Error("not found"), {
+      name: "NotFoundError",
+      statusCode: 404,
+    });
+    const { proveedor } = proveedorCon([error]);
+
+    await expect(proveedor.generarExposicion(input)).rejects.toBeInstanceOf(
+      ProveedorConfiguracionError,
+    );
+  });
+
+  it("traduce el deadline de Gemini a tiempo agotado", async () => {
+    const { proveedor } = proveedorCon([
+      new ApiError({ message: "deadline", status: 504 }),
+    ]);
+
+    await expect(proveedor.generarExposicion(input)).rejects.toBeInstanceOf(
+      ProveedorTiempoAgotadoError,
+    );
+  });
+
   it("no llama al modelo si la redacción no tiene tiempo mínimo", async () => {
     const { proveedor, llamadas } = proveedorCon([borrador], {
       timeoutRedaccionMs: 1,
